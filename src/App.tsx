@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, useSpring } from 'motion/react';
-import { Instagram, Mail, Phone, ArrowRight, Camera, Sparkles, Heart, MapPin } from 'lucide-react';
+import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'motion/react';
+import { Instagram, Mail, Phone, ArrowRight, Camera, Sparkles, Heart, MapPin, X, Calendar as CalendarIcon, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
 import photo1 from './assets/photo_2026-03-12_17-38-02.jpg';
 import photo2 from './assets/photo_2026-03-12_17-38-05.jpg';
 import photo3 from './assets/photo_2026-03-12_17-38-08.jpg';
@@ -61,7 +61,208 @@ const CustomCursor = () => {
   );
 };
 
-const Navbar = () => (
+const BookingModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  const [step, setStep] = useState(1);
+  const [selectedDate, setSelectedDate] = useState<number | null>(null);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    type: 'Портретна'
+  });
+
+  const daysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
+  const firstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
+
+  const handlePrevMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
+  const handleNextMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
+
+  const days = Array.from({ length: daysInMonth(currentMonth.getFullYear(), currentMonth.getMonth()) }, (_, i) => i + 1);
+  const emptyDays = Array.from({ length: firstDayOfMonth(currentMonth.getFullYear(), currentMonth.getMonth()) }, (_, i) => i);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setStep(3); // Success step
+    // In a real app, you'd send formData and selectedDate to a server here
+  };
+
+  const monthNames = ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"];
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-10 bg-ink/40 backdrop-blur-md"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ scale: 0.9, y: 20, opacity: 0 }}
+            animate={{ scale: 1, y: 0, opacity: 1 }}
+            exit={{ scale: 0.9, y: 20, opacity: 0 }}
+            className="bg-base w-full max-w-4xl overflow-hidden rounded-[40px] shadow-2xl flex flex-col md:flex-row relative"
+            onClick={e => e.stopPropagation()}
+          >
+            <button 
+              onClick={onClose}
+              className="absolute top-6 right-6 p-3 bg-accent/10 rounded-full hover:bg-accent hover:text-white transition-all z-10"
+            >
+              <X size={20} />
+            </button>
+
+            {/* Left Side: Visual / Calendar */}
+            <div className="md:w-1/2 bg-surface p-8 md:p-12 flex flex-col justify-center">
+              {step < 3 ? (
+                <>
+                  <div className="mb-8 space-y-2">
+                    <span className="text-[10px] uppercase tracking-[0.4em] text-accent font-black">Крок {step} з 2</span>
+                    <h3 className="text-4xl font-display italic leading-none">
+                      {step === 1 ? "Оберіть дату" : "Ваші контакти"}
+                    </h3>
+                  </div>
+
+                  {step === 1 ? (
+                    <div className="bg-base/50 p-6 rounded-3xl border border-accent/20">
+                      <div className="flex justify-between items-center mb-6">
+                        <span className="font-bold text-sm uppercase tracking-widest">{monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}</span>
+                        <div className="flex gap-2">
+                          <button onClick={handlePrevMonth} className="p-2 hover:bg-accent/10 rounded-full transition-colors"><ChevronLeft size={16} /></button>
+                          <button onClick={handleNextMonth} className="p-2 hover:bg-accent/10 rounded-full transition-colors"><ChevronRight size={16} /></button>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-7 gap-2 text-center text-[10px] font-bold opacity-30 mb-4 tracking-tighter uppercase">
+                        {['Нд', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'].map(d => <div key={d}>{d}</div>)}
+                      </div>
+                      <div className="grid grid-cols-7 gap-2">
+                        {emptyDays.map(i => <div key={`empty-${i}`} />)}
+                        {days.map(day => (
+                          <button
+                            key={day}
+                            onClick={() => setSelectedDate(day)}
+                            className={`aspect-square flex items-center justify-center rounded-xl text-xs transition-all ${
+                              selectedDate === day ? 'bg-accent text-white font-bold scale-110 shadow-lg' : 'hover:bg-accent/20'
+                            }`}
+                          >
+                            {day}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      <div className="p-4 bg-accent/10 rounded-2xl flex items-center gap-4">
+                        <CalendarIcon size={20} className="text-accent" />
+                        <div>
+                          <p className="text-[10px] uppercase tracking-widest opacity-50 font-bold">Обрана дата</p>
+                          <p className="font-bold">{selectedDate} {monthNames[currentMonth.getMonth()].toLowerCase()}, {currentMonth.getFullYear()}</p>
+                        </div>
+                      </div>
+                      <p className="text-sm italic opacity-70">Залиште ваші дані, і я зв'яжуся з вами для обговорення деталей зйомки.</p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center space-y-6 flex flex-col items-center">
+                  <motion.div 
+                    initial={{ scale: 0 }} 
+                    animate={{ scale: 1 }} 
+                    className="w-20 h-20 bg-accent rounded-full flex items-center justify-center text-white"
+                  >
+                    <CheckCircle2 size={40} />
+                  </motion.div>
+                  <h3 className="text-4xl font-display italic">Дякую!</h3>
+                  <p className="text-sm italic opacity-70">Вашу заявку прийнято. Я зв'яжуся з вами найближчим часом.</p>
+                </div>
+              )}
+            </div>
+
+            {/* Right Side: Form */}
+            <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center border-t md:border-t-0 md:border-l border-ink/5">
+              {step === 1 ? (
+                <div className="space-y-8">
+                  <p className="text-sm italic opacity-70">Першим кроком ми обираємо бажаний день. Не хвилюйтеся, точний час ми узгодимо пізніше.</p>
+                  <button
+                    disabled={!selectedDate}
+                    onClick={() => setStep(2)}
+                    className="w-full py-5 bg-ink text-white rounded-full text-[11px] uppercase tracking-[0.4em] font-black hover:bg-accent transition-all duration-500 disabled:opacity-30 disabled:hover:bg-ink"
+                  >
+                    Наступний крок
+                  </button>
+                </div>
+              ) : step === 2 ? (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] uppercase tracking-widest font-black opacity-50 ml-4">Як вас звати?</label>
+                    <input
+                      required
+                      type="text"
+                      placeholder="ПІБ"
+                      value={formData.name}
+                      onChange={e => setFormData({...formData, name: e.target.value})}
+                      className="w-full bg-surface border-none rounded-3xl px-6 py-4 focus:ring-2 focus:ring-accent outline-none text-sm font-medium transition-all"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] uppercase tracking-widest font-black opacity-50 ml-4">Номер телефону</label>
+                    <input
+                      required
+                      type="tel"
+                      placeholder="+380"
+                      value={formData.phone}
+                      onChange={e => setFormData({...formData, phone: e.target.value})}
+                      className="w-full bg-surface border-none rounded-3xl px-6 py-4 focus:ring-2 focus:ring-accent outline-none text-sm font-medium transition-all"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] uppercase tracking-widest font-black opacity-50 ml-4">Тип зйомки</label>
+                    <select
+                      value={formData.type}
+                      onChange={e => setFormData({...formData, type: e.target.value})}
+                      className="w-full bg-surface border-none rounded-3xl px-6 py-4 focus:ring-2 focus:ring-accent outline-none text-sm font-medium transition-all appearance-none cursor-pointer"
+                    >
+                      <option>Портретна</option>
+                      <option>Love Story</option>
+                      <option>Репортажна</option>
+                      <option>Творча</option>
+                    </select>
+                  </div>
+                  <div className="pt-4 flex gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setStep(1)}
+                      className="flex-1 py-5 border border-ink/10 rounded-full text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-surface transition-all"
+                    >
+                      Назад
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-[2] py-5 bg-accent text-white rounded-full text-[11px] uppercase tracking-[0.4em] font-black hover:bg-ink transition-all duration-500 shadow-xl"
+                    >
+                      Підтвердити
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="space-y-6">
+                  <button
+                    onClick={onClose}
+                    className="w-full py-5 bg-ink text-white rounded-full text-[11px] uppercase tracking-[0.4em] font-black hover:bg-accent transition-all duration-500"
+                  >
+                    Повернутися на сайт
+                  </button>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+const Navbar = ({ onOpenBooking }: { onOpenBooking: () => void }) => (
   <nav className="fixed top-0 left-0 w-full z-50 px-6 md:px-16 py-5 md:py-10 flex justify-between items-center bg-base/80 backdrop-blur-lg border-b border-ink/5">
     <motion.div 
       initial={{ opacity: 0 }}
@@ -75,7 +276,7 @@ const Navbar = () => (
       <a href="#about" className="hover:text-accent transition-colors duration-500">Про мене</a>
       <a href="#contact" className="hover:text-accent transition-colors duration-500">Контакти</a>
     </div>
-    <motion.a 
+    <motion.button 
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ 
         opacity: 1, 
@@ -89,12 +290,12 @@ const Navbar = () => (
         },
         opacity: { duration: 0.5 }
       }}
-      href="#contact" 
+      onClick={onOpenBooking}
       className="group flex items-center gap-3 md:gap-4 px-8 md:px-10 py-4 md:py-5 bg-accent text-base rounded-full text-[11px] md:text-[12px] uppercase tracking-[0.4em] font-black hover:bg-ink transition-all duration-500 shadow-[0_20px_50px_rgba(229,169,169,0.4)] hover:shadow-none"
     >
       <span>Замовити</span>
       <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
-    </motion.a>
+    </motion.button>
   </nav>
 );
 
@@ -198,7 +399,7 @@ const Portfolio = () => {
   );
 };
 
-const Hero = () => (
+const Hero = ({ onOpenBooking }: { onOpenBooking: () => void }) => (
   <section className="relative min-h-screen flex flex-col justify-center items-center pt-24 md:pt-32 px-6 md:px-16 bg-base overflow-hidden">
     <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-accent/10 blur-[120px] rounded-full" />
     <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-accent/5 blur-[100px] rounded-full" />
@@ -222,14 +423,14 @@ const Hero = () => (
             Я вірю, що краса ховається в деталях — у випадковому погляді, легкому дотику та щирій посмішці. Створюю спогади, які стають сімейними реліквіями.
           </p>
           <div className="pt-8 flex justify-center lg:justify-start">
-            <motion.a 
+            <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              href="#contact"
+              onClick={onOpenBooking}
               className="px-12 py-6 bg-ink text-base rounded-full text-[12px] uppercase tracking-[0.5em] font-bold hover:bg-accent transition-all duration-500 shadow-2xl"
             >
               Забронювати дату
-            </motion.a>
+            </motion.button>
           </div>
         </motion.div>
       </div>
@@ -440,13 +641,16 @@ const AboutAndContact = () => (
 );
 
 export default function App() {
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+
   return (
     <div className="min-h-screen selection:bg-accent selection:text-base overflow-x-hidden bg-base">
       <CustomCursor />
-      <Navbar />
-      <Hero />
+      <Navbar onOpenBooking={() => setIsBookingOpen(true)} />
+      <Hero onOpenBooking={() => setIsBookingOpen(true)} />
       <Portfolio />
       <AboutAndContact />
+      <BookingModal isOpen={isBookingOpen} onClose={() => setIsBookingOpen(false)} />
     </div>
   );
 }
