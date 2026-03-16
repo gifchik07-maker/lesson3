@@ -348,7 +348,7 @@ const Portfolio = () => {
     { id: 1, category: "Портрет", title: "Мистецтво світла", image: photo4 },
     { id: 2, category: "Портрет", title: "Елегантність", image: photo5 },
     { id: 3, category: "Моменти", title: "За кадром", image: photo6 },
-    { id: 4, category: "Портрет", title: "Сяйво", image: photo7 },
+    { id: 4, category: "Моменти", title: "Сяйво", image: photo7 },
     { id: 6, category: "Портрет", title: "Глибина", image: photo2 },
   ];
 
