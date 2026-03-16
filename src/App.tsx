@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'motion/react';
-import { Instagram, Mail, Phone, ArrowRight, Camera, Sparkles, Heart, MapPin, X, Calendar as CalendarIcon, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { Instagram, Mail, Phone, ArrowRight, Camera, Sparkles, Heart, MapPin, X, Calendar as CalendarIcon, ChevronLeft, ChevronRight, CheckCircle2, ShieldCheck } from 'lucide-react';
 import photo1 from './assets/photo_2026-03-12_17-38-02.jpg';
 import photo2 from './assets/photo_2026-03-12_17-38-05.jpg';
 import photo3 from './assets/photo_2026-03-12_17-38-08.jpg';
@@ -485,7 +485,7 @@ const AboutAndContact = () => (
                 Я створюю атмосферу довіри та абсолютного комфорту, де ви можете розкритися та просто бути собою. Моє авторське бачення та увага до деталей гарантують результат, який перевершить ваші найвищі очікування.
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-10 pt-10 border-t border-accent/20">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 pt-10 border-t border-accent/20">
               <div className="space-y-3">
                 <Camera size={24} className="text-accent" />
                 <div className="text-[11px] uppercase tracking-widest font-bold">10 Фото</div>
@@ -495,6 +495,11 @@ const AboutAndContact = () => (
                 <Sparkles size={24} className="text-accent" />
                 <div className="text-[11px] uppercase tracking-widest font-bold">Преміум</div>
                 <div className="text-[10px] uppercase tracking-widest opacity-100 text-ink font-bold italic">Якість та сервіс</div>
+              </div>
+              <div className="space-y-3">
+                <ShieldCheck size={24} className="text-accent" />
+                <div className="text-[11px] uppercase tracking-widest font-bold">Офіційно</div>
+                <div className="text-[10px] uppercase tracking-widest opacity-100 text-ink font-bold italic">Працюємо через ФОП</div>
               </div>
             </div>
           </div>
