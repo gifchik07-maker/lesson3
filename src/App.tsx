@@ -340,17 +340,16 @@ const Navbar = ({ onOpenBooking }: { onOpenBooking: () => void }) => (
 );
 
 const Portfolio = () => {
-  const categories = ["Все", "Любов", "Портрети", "Моменти"];
+  const categories = ["Все", "Портрет", "Моменти"];
   const [activeCategory, setActiveCategory] = useState("Все");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const projects = [
-    { id: 1, category: "Портрети", title: "Мистецтво світла", image: photo4 },
-    { id: 2, category: "Портрети", title: "Елегантність", image: photo5 },
+    { id: 1, category: "Портрет", title: "Мистецтво світла", image: photo4 },
+    { id: 2, category: "Портрет", title: "Елегантність", image: photo5 },
     { id: 3, category: "Моменти", title: "За кадром", image: photo6 },
-    { id: 4, category: "Портрети", title: "Сяйво", image: photo7 },
-    { id: 5, category: "Любов", title: "Ніжність", image: photo1 },
-    { id: 6, category: "Портрети", title: "Глибина", image: photo2 },
+    { id: 4, category: "Портрет", title: "Сяйво", image: photo7 },
+    { id: 6, category: "Портрет", title: "Глибина", image: photo2 },
   ];
 
   const filteredProjects = activeCategory === "Все" 
