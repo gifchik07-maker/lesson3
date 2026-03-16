@@ -77,13 +77,29 @@ const BookingModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
   const handlePrevMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
   const handleNextMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
 
+  // Mock booked dates (in a real app, fetch these from a database)
+  const bookedDates = [15, 20, 22, 28]; 
+  
+  const isDateDisabled = (day: number) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dateToCheck = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+    
+    // Disable if it's in the past or in the bookedDates list (only for current month/year for simplicity)
+    const isPast = dateToCheck < today;
+    const isBooked = currentMonth.getMonth() === new Date().getMonth() && 
+                    currentMonth.getFullYear() === new Date().getFullYear() && 
+                    bookedDates.includes(day);
+    
+    return isPast || isBooked;
+  };
+
   const days = Array.from({ length: daysInMonth(currentMonth.getFullYear(), currentMonth.getMonth()) }, (_, i) => i + 1);
   const emptyDays = Array.from({ length: firstDayOfMonth(currentMonth.getFullYear(), currentMonth.getMonth()) }, (_, i) => i);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setStep(3); // Success step
-    // In a real app, you'd send formData and selectedDate to a server here
   };
 
   const monthNames = ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"];
@@ -124,30 +140,54 @@ const BookingModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
                   </div>
 
                   {step === 1 ? (
-                    <div className="bg-base/50 p-6 rounded-3xl border border-accent/20">
-                      <div className="flex justify-between items-center mb-6">
-                        <span className="font-bold text-sm uppercase tracking-widest">{monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}</span>
-                        <div className="flex gap-2">
-                          <button onClick={handlePrevMonth} className="p-2 hover:bg-accent/10 rounded-full transition-colors"><ChevronLeft size={16} /></button>
-                          <button onClick={handleNextMonth} className="p-2 hover:bg-accent/10 rounded-full transition-colors"><ChevronRight size={16} /></button>
+                    <div className="space-y-6">
+                      <div className="bg-base/50 p-6 rounded-3xl border border-accent/20">
+                        <div className="flex justify-between items-center mb-6">
+                          <span className="font-bold text-sm uppercase tracking-widest">{monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}</span>
+                          <div className="flex gap-2">
+                            <button onClick={handlePrevMonth} className="p-2 hover:bg-accent/10 rounded-full transition-colors"><ChevronLeft size={16} /></button>
+                            <button onClick={handleNextMonth} className="p-2 hover:bg-accent/10 rounded-full transition-colors"><ChevronRight size={16} /></button>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-7 gap-2 text-center text-[10px] font-bold opacity-30 mb-4 tracking-tighter uppercase">
+                          {['Нд', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'].map(d => <div key={d}>{d}</div>)}
+                        </div>
+                        <div className="grid grid-cols-7 gap-2">
+                          {emptyDays.map(i => <div key={`empty-${i}`} />)}
+                          {days.map(day => {
+                            const disabled = isDateDisabled(day);
+                            const isBooked = bookedDates.includes(day) && currentMonth.getMonth() === new Date().getMonth();
+                            return (
+                              <button
+                                key={day}
+                                disabled={disabled}
+                                onClick={() => setSelectedDate(day)}
+                                className={`aspect-square flex items-center justify-center rounded-xl text-xs transition-all relative ${
+                                  selectedDate === day 
+                                    ? 'bg-accent text-white font-bold scale-110 shadow-lg' 
+                                    : disabled 
+                                      ? 'opacity-20 cursor-not-allowed bg-ink/5' 
+                                      : 'hover:bg-accent/20'
+                                }`}
+                              >
+                                {day}
+                                {isBooked && (
+                                  <div className="absolute bottom-1 w-1 h-1 bg-ink rounded-full" />
+                                )}
+                              </button>
+                            );
+                          })}
                         </div>
                       </div>
-                      <div className="grid grid-cols-7 gap-2 text-center text-[10px] font-bold opacity-30 mb-4 tracking-tighter uppercase">
-                        {['Нд', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'].map(d => <div key={d}>{d}</div>)}
-                      </div>
-                      <div className="grid grid-cols-7 gap-2">
-                        {emptyDays.map(i => <div key={`empty-${i}`} />)}
-                        {days.map(day => (
-                          <button
-                            key={day}
-                            onClick={() => setSelectedDate(day)}
-                            className={`aspect-square flex items-center justify-center rounded-xl text-xs transition-all ${
-                              selectedDate === day ? 'bg-accent text-white font-bold scale-110 shadow-lg' : 'hover:bg-accent/20'
-                            }`}
-                          >
-                            {day}
-                          </button>
-                        ))}
+                      <div className="flex gap-6 justify-center text-[9px] uppercase tracking-widest font-bold opacity-60">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-accent" />
+                          <span>Обрано</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-ink/20" />
+                          <span>Зайнято</span>
+                        </div>
                       </div>
                     </div>
                   ) : (
